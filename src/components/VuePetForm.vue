@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+    <b-alert show>Hello, {{ authentication.user.displayName }}</b-alert>
+    <b-form @submit="onSubmit" @reset="onReset">
       <b-form-group
         id="input-group-1"
         label="Pet name:"
@@ -39,7 +40,7 @@
       <b-button type="submit" variant="info">Submit</b-button>
       <b-button type="reset" variant="danger">Reset</b-button>
     </b-form>
-    <b-card class="mt-3" header="Form Data Result" v-if="hide">
+    <b-card class="mt-3" header="Form Data Result" v-if="show">
       <pre class="m-0">{{ form }}</pre>
     </b-card>
   </div>
@@ -47,6 +48,7 @@
 
 <script>
 export default {
+  props: ["authentication"],
   data() {
     return {
       form: {
@@ -69,6 +71,7 @@ export default {
       this.form.petName = "";
       this.form.file = "";
       this.form.desc = "";
+      this.previewImageData = null;
       this.show = false;
       this.$nextTick(() => {
         this.show = true;
@@ -84,7 +87,7 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
       } else {
-          this.previewImageData = null;
+        this.previewImageData = null;
       }
     }
   }

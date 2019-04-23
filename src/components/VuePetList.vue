@@ -1,22 +1,40 @@
 <template>
   <b-container fluid>
-    <b-img v-for="img in list" :key="img.id" :src="img.src" :alt="img.petName" :title="img.desc" thumbnail fluid ></b-img>
-    <hr/>
-    <VuePetForm/>
+    <b-img
+      v-for="img in list"
+      :key="img.id"
+      :src="img.src"
+      :alt="img.petName"
+      :title="img.desc"
+      thumbnail
+      fluid
+    ></b-img>
+    <hr>
+    <VuePetForm v-if="isLogin()" :authentication="authentication"/>
+    <hr>
+    <div>
+      <b-button variant="danger" v-if="!isLogin()" @click="googleLogin">Login with Google</b-button>
+      <b-button variant="warning" v-if="isLogin()" @click="googleLogout">Logout</b-button>
+    </div>
   </b-container>
 </template>
 
 <script>
 import VuePetForm from "./VuePetForm.vue";
+import firebase from "firebase";
 
 export default {
   name: "pet-list",
-  components : {
+  components: {
     VuePetForm
   },
   data: function() {
     return {
       greeting: "hello test!",
+      authentication: {
+        token: null,
+        user: null
+      },
       list: [
         {
           id: 1,
@@ -55,6 +73,42 @@ export default {
         }
       ]
     };
+  },
+  methods: {
+    googleLogin(e) {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      var obj = this;
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(function(result) {
+          obj.authentication.token = result.credential.accessToken;
+          obj.authentication.user = result.user;
+          console.log(obj.authentication);
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+    },
+    googleLogout(e) {
+      var obj = this;
+      firebase
+        .auth()
+        .signOut()
+        .then(function() {
+          obj.authentication.token = null;
+          obj.authentication.user = null;
+          console.log("logout");
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+    },
+    isLogin() {
+      return (
+        this.authentication.token != null && this.authentication.user != null
+      );
+    }
   }
 };
 </script>
